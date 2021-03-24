@@ -14,4 +14,4 @@ cidadeSchema.pre("save", function (next) {
   next();
 });
 
-mongoose.model("Cidade", cidadeSchema);
+module.exports = mongoose.model("Cidade", cidadeSchema);

@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const Cidades = mongoose.model("Cidade");
 const { getReservatorio, getFuelType } = require("../utils/functions");
 
 const postoSchema = new mongoose.Schema(
@@ -7,7 +6,6 @@ const postoSchema = new mongoose.Schema(
     nome: String,
     reservatorio: {
       type: Number,
-      default: Math.floor(Math.random() * Math.floor(100)),
     },
     photo_reference: String, // referencia para pegar a url da foto
     photo_url: String,
@@ -19,6 +17,7 @@ const postoSchema = new mongoose.Schema(
     cidadeId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Cidade",
+      required: true,
     },
     open_now: Boolean,
     rating: Number,
@@ -29,24 +28,41 @@ const postoSchema = new mongoose.Schema(
 // pre-save hook
 postoSchema.pre("save", async function (next) {
   const posto = this;
-  // console.log("p", posto);
-  const query = await Cidades.findById(posto.cidadeId).exec();
+  const Cidades = mongoose.model("Cidade");
+  let query = await Cidades.findById(posto.cidadeId).exec();
   if (!query) {
     return next(new Error("Nao foi possivel achar a cidade"));
   }
-  if (posto.isNew) {
+
+  // this will generate a new random reservatorio everytime
+  if (!posto.reservatorio) {
     posto.set("reservatorio", getReservatorio());
   }
-  // update postos of cidades with this posto
-  if (
-    query.postos &&
-    Array.isArray(query.postos) &&
-    query.postos.length > 0 &&
-    !query.postos.find((p) => p?._id.equals(posto._id))
-  ) {
-    query.postos.push(posto);
-    await query.save();
-  }
+
   next();
 });
-mongoose.model("Posto", postoSchema);
+// post-save hook
+postoSchema.post("save", async function (next) {
+  const posto = this;
+  // console.log("posto post-save", posto);
+  const Cidades = mongoose.model("Cidade");
+  let query = await Cidades.findById(posto.cidadeId).exec();
+  // update postos of cidades with this posto
+  if (query.postos && Array.isArray(query.postos)) {
+    if (
+      query.postos.length > 0 &&
+      query.postos.find((p) => {
+        return p.equals(posto._id);
+      })
+    ) {
+      return;
+    } else {
+      query.postos.push(posto);
+      await query.save();
+    }
+  }
+
+  return;
+});
+
+module.exports = mongoose.model("Posto", postoSchema);

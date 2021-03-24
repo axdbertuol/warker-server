@@ -1,11 +1,13 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+const validator = require("validator");
 
 const userSchema = new mongoose.Schema({
   email: {
     type: "string",
     unique: true,
     required: true,
+    validate: [validator.isEmail, "Invalid email address"],
   },
   password: {
     type: "string",
@@ -54,4 +56,4 @@ userSchema.methods.comparePassword = function (candidatePassword) {
   });
 };
 
-mongoose.model("User", userSchema);
+module.exports = mongoose.model("User", userSchema);

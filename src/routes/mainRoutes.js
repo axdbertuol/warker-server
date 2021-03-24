@@ -19,9 +19,8 @@ router.post("/api/postos", async (req, res) => {
     if (!Array.isArray(data)) {
       throw new Error("Data should be an array of postos");
     }
-    // console.log(data);
-    // const promises = data.map(async function ({
-    for (let {
+
+    for (const {
       nome_cidade,
       nome,
       coords,
@@ -31,53 +30,17 @@ router.post("/api/postos", async (req, res) => {
       place_id,
       photo_url,
     } of data) {
-      // }) {
-      // if(!nome_cidade)
       let query = await Posto.findOne({
         place_id,
       }).exec();
-      // temporary
-      // if (query) {
-      //   let didSet = false;
-      //   if (!query.rating) {
-      //     query.rating = rating;
-      //     didSet = true;
-      //   }
-      //   if (!query.open_now) {
-      //     query.open_now = open_now;
-      //     didSet = true;
-      //   }
-      //   if (!query?.photo_url && query.photo_reference) {
-      //     const response = await axios.get(
-      //       "https://maps.googleapis.com/maps/api/place/photo",
-      //       {
-      //         params: {
-      //           maxwidth: 400,
-      //           photoreference: photo_reference,
-      //           key: "AIzaSyDiNGubUWbZROxIQJEIhF2Edf6AlMQaOpI",
-      //         },
-      //       }
-      //     );
-      //     const photo_url = response.request?.responseURL;
-      //     // query.photo_url = photo_url;
-      //     query.set("photo_url", photo_url);
-      //     console.log("oi", query);
-      //     didSet = true;
-      //   }
-      //   if (didSet) {
-      //     await query.save();
-      //   }
-      // }
+
       if (!query) {
-        // console.log("nome_cidade", nome_cidade);
         let cidade = await Cidade.findOne({ nome: nome_cidade });
         if (!cidade) {
-          nova_cidade = new Cidade({ nome: nome_cidade });
-          nova_cidade.save();
+          cidade = await new Cidade({ nome: nome_cidade }).save();
         }
-        // console.log("cheguei", cidade);
 
-        let posto = new Posto({
+        const posto = new Posto({
           cidadeId: cidade._id,
           nome,
           photo_reference,
@@ -86,9 +49,7 @@ router.post("/api/postos", async (req, res) => {
           coords,
           rating,
           open_now,
-          // reservatorio,
         });
-        // console.log(posto);
         await posto.save();
       }
     }
@@ -105,8 +66,8 @@ router.get("/api/postos", async (req, res) => {
     let result = [];
     if (data && Array.isArray(data)) {
       for (let place_id of data) {
-        const query = await Posto.findOne({ place_id }).exec();
-        result.push(query);
+        const doc = await Posto.findOne({ place_id }).exec();
+        if (doc) result.push(doc);
       }
 
       res.send(result.filter((posto) => posto !== null));
@@ -152,21 +113,35 @@ router.post("/api/cidades?", async (req, res) => {
 });
 
 router.get("/api/cidades", async (req, res) => {
-  const response = await Cidade.find().exec();
-  res.send(response);
+  try {
+    const response = await Cidade.find().exec();
+    res.send(response);
+  } catch (error) {
+    res.send(error.message);
+  }
 });
+
 router.get("/api/cidade", async (req, res) => {
   try {
-    // console.log("params", req.params);
     const result = await Cidade.findOne({
-      nome: req.params["nome_cidade"],
+      nome: req.query?.nome_cidade,
     })
       .populate("postos")
       .exec();
-    // console.log(result);
-    res.send(result);
+
+    if (!result) {
+      throw new Error("Cidade nao encontrada");
+    }
+    res.send({ result });
   } catch (error) {
-    res.status(404).send("Cidade não encontrada");
+    res
+      .status(404)
+      .send(
+        "ERROR: GET /api/cidade with params: " +
+          req.query?.nome_cidade +
+          "\n" +
+          error
+      );
   }
 });
 

@@ -1,5 +1,5 @@
 const axios = require("axios");
-import { GOOGLE_MAPS_KEY } from "../utils/constants";
+const { GOOGLE_MAPS_KEY } = require("../utils/constants");
 
 const timeout = 5000;
 const params = { key: GOOGLE_MAPS_KEY, language: "pt-BR" };
@@ -47,7 +47,7 @@ const photosApi = axios.create({
   params,
 });
 
-export {
+module.exports = {
   placesTextSearch,
   directionsSearch,
   distanceMatrixApi,

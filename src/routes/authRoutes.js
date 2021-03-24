@@ -40,8 +40,8 @@ router.post("/signin", async (req, res) => {
     return res.status(422).send({ error: "Invalid password or email" });
   }
 });
-router.get("/signout", async (req, res) => {
-  console.log("Signing out on backend");
-  res.status(200).send({ message: "Successfully signed out" });
-});
+// router.get("/signout", async (req, res) => {
+//   console.log("Signing out on backend");
+//   res.status(200).send({ message: "Successfully signed out" });
+// });
 module.exports = router;
