@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { getReservatorio, getFuelType } = require("../utils/functions");
+const { getReservatorio, getFuelTypes } = require("../utils/functions");
 
 const postoSchema = new mongoose.Schema(
   {
@@ -7,6 +7,7 @@ const postoSchema = new mongoose.Schema(
     reservatorio: {
       type: Number,
     },
+    fuelTypes: Array,
     photo_reference: String, // referencia para pegar a url da foto
     photo_url: String,
     place_id: { type: String, unique: true }, // google's id
@@ -38,6 +39,10 @@ postoSchema.pre("save", async function (next) {
   if (!posto.reservatorio) {
     posto.set("reservatorio", getReservatorio());
   }
+  // this will generate a new random array of fuelTypes
+  posto.set("fuelTypes", getFuelTypes());
+  // if (!posto.fuelTypes) {
+  // }
 
   next();
 });

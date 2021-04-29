@@ -1,7 +1,7 @@
 const axios = require("axios");
 const { GOOGLE_MAPS_KEY } = require("../utils/constants");
 
-const timeout = 5000;
+const timeout = 10000;
 const params = { key: GOOGLE_MAPS_KEY, language: "pt-BR" };
 
 const placesTextSearch = axios.create({

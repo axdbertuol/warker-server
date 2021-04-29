@@ -13,52 +13,52 @@ const router = express.Router();
 router.route("/api/*").all(requireAuth);
 
 // API POSTOS
-router.post("/api/postos", async (req, res) => {
-  try {
-    let data = req.body;
-    if (!Array.isArray(data)) {
-      throw new Error("Data should be an array of postos");
-    }
+// router.post("/api/postos", async (req, res) => {
+//   try {
+//     let data = req.body;
+//     if (!Array.isArray(data)) {
+//       throw new Error("Data should be an array of postos");
+//     }
 
-    for (const {
-      nome_cidade,
-      nome,
-      coords,
-      photo_reference,
-      rating,
-      open_now,
-      place_id,
-      photo_url,
-    } of data) {
-      let query = await Posto.findOne({
-        place_id,
-      }).exec();
+//     for (const {
+//       nome_cidade,
+//       nome,
+//       coords,
+//       photo_reference,
+//       rating,
+//       open_now,
+//       place_id,
+//       photo_url,
+//     } of data) {
+//       let query = await Posto.findOne({
+//         place_id,
+//       }).exec();
 
-      if (!query) {
-        let cidade = await Cidade.findOne({ nome: nome_cidade });
-        if (!cidade) {
-          cidade = await new Cidade({ nome: nome_cidade }).save();
-        }
+//       if (!query) {
+//         let cidade = await Cidade.findOne({ nome: nome_cidade });
+//         if (!cidade) {
+//           cidade = await new Cidade({ nome: nome_cidade }).save();
+//         }
 
-        const posto = new Posto({
-          cidadeId: cidade._id,
-          nome,
-          photo_reference,
-          photo_url,
-          place_id,
-          coords,
-          rating,
-          open_now,
-        });
-        await posto.save();
-      }
-    }
-    // });
-    return res.send("Postos criados");
-  } catch (err) {
-    console.log(err.message);
-  }
-});
+//         const posto = new Posto({
+//           cidadeId: cidade._id,
+//           nome,
+//           photo_reference,
+//           photo_url,
+//           place_id,
+//           coords,
+//           rating,
+//           open_now,
+//         });
+//         await posto.save();
+//       }
+//     }
+//     // });
+//     return res.send("Postos criados");
+//   } catch (err) {
+//     console.log(err.message);
+//   }
+// });
 
 router.get("/api/postos", async (req, res) => {
   try {
@@ -79,6 +79,7 @@ router.get("/api/postos", async (req, res) => {
     return res.status(404).send(error.message);
   }
 });
+
 // router.get("/api/postos?/:postoId", async (req, res) => {
 //   try {
 //     res.send(await Posto.findOne({ _id: req.params["postoId"] }).exec());
