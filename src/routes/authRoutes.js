@@ -5,14 +5,15 @@ const User = mongoose.model("User");
 
 const router = express.Router();
 
+const { MY_SECRET_KEY } = require("../utils/constants");
 router.post("/signup", async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = new User({ email, password });
     await user.save();
 
-    const token = jwt.sign({ userId: user._id }, "MY_SECRET_KEY");
-    res.send({ token });
+    const token = jwt.sign({ userId: user._id }, MY_SECRET_KEY);
+    res.send({ user: { _id: user._id, email: user.email }, token });
   } catch (error) {
     return res.status(422).send(error.message);
   }
@@ -34,8 +35,8 @@ router.post("/signin", async (req, res) => {
 
   try {
     await user.comparePassword(password);
-    const token = jwt.sign({ userId: user._id }, "MY_SECRET_KEY");
-    res.send({ token });
+    const token = jwt.sign({ userId: user._id }, MY_SECRET_KEY);
+    res.send({ user: { _id: user._id, email: user.email }, token });
   } catch (error) {
     return res.status(422).send({ error: "Invalid password or email" });
   }

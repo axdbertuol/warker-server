@@ -1,5 +1,7 @@
-const GOOGLE_MAPS_KEY = "AIzaSyDiNGubUWbZROxIQJEIhF2Edf6AlMQaOpI";
+require("dotenv").config();
 
+const GOOGLE_MAPS_KEY = process.env.GOOGLE_MAPS_KEY;
+const MY_SECRET_KEY = process.env.MY_SECRET_KEY;
 // FILTERS
 
 const RES_BAIXO = "res_baixo"; //  < 30%
@@ -16,4 +18,5 @@ module.exports = {
   DIESEL,
   GNV,
   ETANOL,
+  MY_SECRET_KEY,
 };

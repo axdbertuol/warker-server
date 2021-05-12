@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const axios = require("axios");
+const jwt = require("jsonwebtoken");
 
 const Cidade = mongoose.model("Cidade");
 const Posto = mongoose.model("Posto");
@@ -157,5 +158,28 @@ router.put("/api/postos?/:cidadeId/edit", async (req, res) => {
   } catch (error) {
     res.status(404).send("Cidade não encontrada");
   }
+});
+
+router.get("/api/user", async (req, res) => {
+  if (req.user) {
+    console.log("user req", req.user);
+    res.send({ _id: req.user._id, email: req.user.email });
+    return;
+  }
+
+  const token = req.query["token"];
+  const user = jwt.verify(token, MY_SECRET_KEY, async (err, payload) => {
+    console.log("payload", payload);
+
+    if (err) {
+      return res.status(401).send({ error: "You must be logged in" });
+    }
+    const { userId } = payload;
+
+    const user = await User.findById(userId);
+    req.user = user;
+    return user;
+  });
+  res.send({ _id: user._id, email: user.email });
 });
 module.exports = router;

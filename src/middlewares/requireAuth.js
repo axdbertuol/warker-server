@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const User = mongoose.model("User");
 
+const { MY_SECRET_KEY } = require("../utils/constants");
 module.exports = (req, res, next) => {
   // get Authorization header including jwt token
   // authorization === 'Bearer dsffjsdj'
@@ -12,7 +13,7 @@ module.exports = (req, res, next) => {
   }
 
   const token = authorization.replace("Bearer ", "");
-  jwt.verify(token, "MY_SECRET_KEY", async (err, payload) => {
+  jwt.verify(token, MY_SECRET_KEY, async (err, payload) => {
     console.log("payload", payload);
 
     if (err) {

@@ -29,7 +29,7 @@ const requireAuth = require("../middlewares/requireAuth");
 
 const router = express.Router();
 
-// router.route("/api/google").all(requireAuth);
+router.route("/api/google").all(requireAuth);
 
 /** Routes for google maps Places Api */
 
@@ -67,7 +67,7 @@ router.get("/api/nearbysearch", async (req, res) => {
     const queryObj = {};
     let fuelQuery = [];
     if (query) {
-      queryObj.nome = new RegExp(".*" + query + ".*");
+      queryObj.nome = new RegExp(".*" + query + ".*", "gi");
     }
     if (filters) {
       if (filters.includes(RES_BAIXO)) {
