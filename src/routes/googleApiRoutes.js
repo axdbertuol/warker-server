@@ -40,7 +40,7 @@ router.route("/api/google").all(requireAuth);
  * @param {string} query - the term to search for
  * @param {string} lat - the latitude coordinate
  * @param {string} lng - the longitude coordinate
- * @param {number} radius - the radius in kilometers
+ * @param {number} radius - the radius in km
  */
 
 router.get("/api/nearbysearch", async (req, res) => {
@@ -91,15 +91,16 @@ router.get("/api/nearbysearch", async (req, res) => {
         queryObj.fuelTypes = { $in: fuelQuery };
       }
     }
-    console.log("queryObj", queryObj);
+    // console.log("queryObj", queryObj);
     const postos = await Posto.find(queryObj).exec();
-    console.log("postos", postos);
+    // console.log("postos", postos);
     // Filter all postos with the place_id sequence provided
     // by the search if it's to rank by distance
     if (response.config.params.rankby === "distance") {
-      const result_arr = postos.filter((posto) => {
-        return sequence.includes(posto.place_id);
+      const result_arr = sequence.map((postoPlaceId) => {
+        return postos.find((posto) => posto.place_id === postoPlaceId);
       });
+      console.log("result_arr", result_arr);
       res.send({ result: result_arr });
     } else {
       res.send({ result: postos });
